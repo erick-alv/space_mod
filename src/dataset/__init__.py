@@ -14,6 +14,8 @@ def get_dataset(cfg, mode):
         return Obj3D(cfg.dataset_roots.OBJ3D_SMALL, mode)
     elif cfg.dataset == 'OBJ3D_LARGE':
         return Obj3D(cfg.dataset_roots.OBJ3D_LARGE, mode)
+    elif cfg.dataset == 'TABLE':
+        return None
 
 def get_dataloader(cfg, mode):
     assert mode in ['train', 'val', 'test']

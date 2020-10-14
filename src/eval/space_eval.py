@@ -92,15 +92,34 @@ class SpaceEval():
         num_workers = eval_cfg.train.num_workers
         
         model.eval()
-        valset = Subset(valset, indices=range(num_samples))
-        dataloader = DataLoader(valset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
+
+        if valset == None:
+            data_set = np.load('../data/TABLE/val/all_set_val.npy')
+            data_size = len(data_set)
+            # creates indexes and shuffles them. So it can acces the data
+            idx_set = np.arange(data_size)
+            np.random.shuffle(idx_set)
+            idx_set = idx_set[:num_samples]
+            idx_set = np.split(idx_set, len(idx_set) / batch_size)
+            data_to_enumerate = idx_set
+        else:
+            valset = Subset(valset, indices=range(num_samples))
+            dataloader = DataLoader(valset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
+            data_to_enumerate = dataloader
     
         metric_logger = MetricLogger()
     
         print(f'Evaluating MSE using {num_samples} samples.')
         with tqdm(total=num_samples) as pbar:
-            for batch_idx, sample in enumerate(dataloader):
-                imgs = sample.to(device)
+            for batch_idx, sample in enumerate(data_to_enumerate):
+                if valset == None:
+                    data_i = data_set[sample]
+                    data_i = torch.from_numpy(data_i).float().to(device)
+                    data_i /= 255
+                    data_i = data_i.permute([0, 3, 1, 2])
+                    imgs = data_i
+                else:
+                    imgs = sample.to(device)
                 loss, log = model(imgs, global_step)
                 B = imgs.size(0)
                 for b in range(B):

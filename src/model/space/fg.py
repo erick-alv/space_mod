@@ -257,6 +257,28 @@ class SpaceFg(nn.Module):
         }
         return fg_likelihood, y_nobg, alpha_map, kl, boundary_loss, log
 
+    def encode(self, x):
+        B = x.size(0)
+        # if globel_step:
+        #self.anneal(1000000000000)
+
+        # Everything is (B, G*G, D), where D varies
+        z_pres, z_depth, z_scale, z_shift, z_where, \
+        z_pres_logits, z_depth_post, z_scale_post, z_shift_post = self.img_encoder(x, self.tau)
+
+        # (B, 3, H, W) -> (B*G*G, 3, H, W). Note we must use repeat_interleave instead of repeat
+        x_repeat = torch.repeat_interleave(x, arch.G ** 2, dim=0)
+
+        # (B*G*G, 3, H, W), where G is the grid size
+        # Extract glimpse
+        x_att = spatial_transform(x_repeat, z_where.view(B * arch.G ** 2, 4),
+                                  (B * arch.G ** 2, 3, arch.glimpse_size, arch.glimpse_size), inverse=False)
+
+        # (B*G*G, D)
+        z_what, z_what_post = self.z_what_net(x_att)
+        return z_pres, z_depth, z_scale, z_shift, z_where, z_pres_logits, z_depth_post, z_scale_post, \
+               z_shift_post
+
 
 class ImgEncoderFg(nn.Module):
     """
@@ -270,30 +292,51 @@ class ImgEncoderFg(nn.Module):
         # Adjust stride such that the output dimension of the volume matches (G, G, ...)
         last_stride = 2 if arch.G in [8, 4] else 1
         second_to_last_stride = 2 if arch.G in [4] else 1
+
+        #Reduction of conv2d with example H = floor( (H + 2*pad - dilation*(kernel-1) - 1)  / stride  + 1)
         
         # Foreground Image Encoder in the paper
         # Encoder: (B, C, Himg, Wimg) -> (B, E, G, G)
         # G is H=W in the paper
-        self.enc = nn.Sequential(
-            nn.Conv2d(3, 16, 4, 2, 1),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            nn.Conv2d(16, 32, 4, 2, 1),
-            nn.CELU(),
-            nn.GroupNorm(8, 32),
-            nn.Conv2d(32, 64, 4, 2, 1),
-            nn.CELU(),
-            nn.GroupNorm(8, 64),
-            nn.Conv2d(64, 128, 3, second_to_last_stride, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 128),
-            nn.Conv2d(128, 256, 3, last_stride, 1),
-            nn.CELU(),
-            nn.GroupNorm(32, 256),
-            nn.Conv2d(256, arch.img_enc_dim_fg, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, arch.img_enc_dim_fg)
-        )
+        if arch.img_shape[0] == 64:
+            self.enc = nn.Sequential(
+                nn.Conv2d(in_channels=3, out_channels=32, kernel_size=4, stride=2, padding=1),
+                nn.CELU(),
+                nn.GroupNorm(8, 32),
+                nn.Conv2d(32, 64, 4, 2, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 128, 3, second_to_last_stride, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 256, 3, last_stride, 1),
+                nn.CELU(),
+                nn.GroupNorm(32, 256),
+                nn.Conv2d(256, arch.img_enc_dim_fg, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, arch.img_enc_dim_fg)
+            )
+        else:
+            self.enc = nn.Sequential(
+                nn.Conv2d(in_channels=3, out_channels=16, kernel_size=4, stride=2, padding=1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 32, 4, 2, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 32),
+                nn.Conv2d(32, 64, 4, 2, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 128, 3, second_to_last_stride, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 256, 3, last_stride, 1),
+                nn.CELU(),
+                nn.GroupNorm(32, 256),
+                nn.Conv2d(256, arch.img_enc_dim_fg, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, arch.img_enc_dim_fg)
+            )
         
         # Residual Connection in the paper
         # Remark: this residual connection is not important

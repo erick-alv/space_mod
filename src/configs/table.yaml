@@ -1,6 +1,6 @@
 seed: 1
 model: 'SPACE'
-resume: true
+resume: false
 resume_ckpt: ''
 parallel: false
 device_ids: [0, 1]
@@ -9,17 +9,18 @@ logdir: '../output/logs'
 checkpointdir: '../output/checkpoints'
 evaldir: '../output/eval/'
 
-dataset: 'OBJ3D_SMALL'
+dataset: 'TABLE'
 dataset_roots:
-  OBJ3D_SMALL: '../data/OBJ3D_SMALL'
+  TABLE: '../data/TABLE'
 
 
 # For engine.train
 train:
-  batch_size: 2 #12
+  batch_size: 4 #12
   max_epochs: 1000
   max_steps: 160000
-  print_every: 500
+  print_every: 100
+  create_image_every: 200
   save_every: 1000
   num_workers: 0 #4
   clip_norm: 1.0
@@ -42,19 +43,20 @@ eval:
 # For package eval
 eval_cfg:
   train:
-    metrics: ['mse', 'ap']
+    metrics: ['mse']
     num_samples:
       mse: 200
       ap: 500
-    batch_size: 2 #
+    batch_size: 4 #
     num_workers: 0 #4
   test:
-    batch_size: 2 #12
+    batch_size: 4 #12
     num_workers: 0 #4
 
 arch:
   G: 8
-  fg_sigma: 0.15
+  img_shape: (64, 64)
+  fg_sigma: 0.2
 
   z_pres_start_step: 4000
   z_pres_end_step: 10000
@@ -74,8 +76,8 @@ arch:
   fix_alpha_steps: 0
   fix_alpha_value: 0.1
 
-  K: 5
-  bg_sigma: 0.15
+  K: 1
+  bg_sigma: 0.1
 
   boundary_loss: true
   bl_off_step: 100000

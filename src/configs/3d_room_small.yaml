@@ -16,12 +16,13 @@ dataset_roots:
 
 # For engine.train
 train:
-  batch_size: 12
+  batch_size: 4 #12
   max_epochs: 1000
   max_steps: 160000
   print_every: 500
+  create_image_every: 100
   save_every: 1000
-  num_workers: 4
+  num_workers: 0 #4
   clip_norm: 1.0
   max_ckpt: 4
   eval_on: true
@@ -46,12 +47,11 @@ eval_cfg:
     num_samples:
       mse: 200
       ap: 500
-    batch_size: 12
-    num_workers: 4
+    batch_size: 4 #
+    num_workers: 0 #4
   test:
-    batch_size: 12
-    num_workers:
-      4
+    batch_size: 4 #12
+    num_workers: 0 #4
 
 arch:
   G: 8

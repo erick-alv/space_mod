@@ -68,3 +68,6 @@ class Space(nn.Module):
         log.update(log_bg)
         
         return loss, log
+
+    def encode(self, x):
+        return self.fg_module.encode(x)

@@ -28,6 +28,7 @@ cfg = CfgNode({
         'ATARI': '../data/ATARI',
         'OBJ3D_LARGE': '../data/OBJ3D_LARGE',
         'OBJ3D_SMALL': '../data/OBJ3D_SMALL',
+        'TABLE':'../data/TABLE'
     },
     
     # For Atari
@@ -60,6 +61,7 @@ cfg = CfgNode({
         'save_every': 1000,
         'eval_on': True,
         'eval_every': 1000,
+        'create_image_every':100,
         
         'solver': {
             'fg': {

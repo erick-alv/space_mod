@@ -281,50 +281,93 @@ class MaskDecoder(nn.Module):
     
     def __init__(self):
         super(MaskDecoder, self).__init__()
+
+        if arch.img_shape[0] == 64:
+            self.dec = nn.Sequential(
+                nn.Conv2d(arch.z_mask_dim, 256, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 256 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+                nn.Conv2d(256, 256, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 128 * 2 * 2, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 128, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+
+                nn.Conv2d(128, 64 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 64, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+
+                nn.Conv2d(64, 16 * 4 * 4, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(4, 64),
+
+                nn.Conv2d(64, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 1, 3, 1, 1)
+
+            )
+        else:
         
-        self.dec = nn.Sequential(
-            nn.Conv2d(arch.z_mask_dim, 256, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            
-            nn.Conv2d(256, 256 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            nn.Conv2d(256, 256, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            
-            nn.Conv2d(256, 128 * 2 * 2, 1),
-            nn.PixelShuffle(2),
-            nn.CELU(),
-            nn.GroupNorm(16, 128),
-            nn.Conv2d(128, 128, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 128),
-            
-            nn.Conv2d(128, 64 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(8, 64),
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(8, 64),
-            
-            nn.Conv2d(64, 16 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            nn.Conv2d(16, 16, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            
-            nn.Conv2d(16, 16, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            nn.Conv2d(16, 1, 3, 1, 1)
-        
-        )
+            self.dec = nn.Sequential(
+                nn.Conv2d(arch.z_mask_dim, 256, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 256 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+                nn.Conv2d(256, 256, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 128 * 2 * 2, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 128, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+
+                nn.Conv2d(128, 64 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 64, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+
+                nn.Conv2d(64, 16 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+
+                nn.Conv2d(16, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 1, 3, 1, 1)
+
+            )
     
     def forward(self, z_mask):
         """
@@ -463,50 +506,92 @@ class CompDecoderStrong(nn.Module):
     
     def __init__(self):
         super(CompDecoderStrong, self).__init__()
-        
-        self.dec = nn.Sequential(
-            nn.Conv2d(arch.z_comp_dim, 256, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            
-            nn.Conv2d(256, 256 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            nn.Conv2d(256, 256, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 256),
-            
-            nn.Conv2d(256, 128 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(16, 128),
-            nn.Conv2d(128, 128, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(16, 128),
-            
-            nn.Conv2d(128, 64 * 2 * 2, 1),
-            nn.PixelShuffle(2),
-            nn.CELU(),
-            nn.GroupNorm(8, 64),
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(8, 64),
-            
-            nn.Conv2d(64, 16 * 4 * 4, 1),
-            nn.PixelShuffle(4),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            nn.Conv2d(16, 16, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            
-            nn.Conv2d(16, 16, 3, 1, 1),
-            nn.CELU(),
-            nn.GroupNorm(4, 16),
-            nn.Conv2d(16, 3, 3, 1, 1)
-        
-        )
+
+        if arch.img_shape[0] == 64:
+            self.dec = nn.Sequential(
+                nn.Conv2d(arch.z_comp_dim, 256, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 256 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+                nn.Conv2d(256, 256, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 128 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 128, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+
+                nn.Conv2d(128, 64 * 2 * 2, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 64, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+
+                nn.Conv2d(64, 16 * 4 * 4, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(4, 64),
+
+                nn.Conv2d(64, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 3, 3, 1, 1)
+
+            )
+        else:
+            self.dec = nn.Sequential(
+                nn.Conv2d(arch.z_comp_dim, 256, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 256 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+                nn.Conv2d(256, 256, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 256),
+
+                nn.Conv2d(256, 128 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+                nn.Conv2d(128, 128, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(16, 128),
+
+                nn.Conv2d(128, 64 * 2 * 2, 1),
+                nn.PixelShuffle(2),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+                nn.Conv2d(64, 64, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(8, 64),
+
+                nn.Conv2d(64, 16 * 4 * 4, 1),
+                nn.PixelShuffle(4),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+
+                nn.Conv2d(16, 16, 3, 1, 1),
+                nn.CELU(),
+                nn.GroupNorm(4, 16),
+                nn.Conv2d(16, 3, 3, 1, 1)
+
+            )
     
     def forward(self, x):
         """
