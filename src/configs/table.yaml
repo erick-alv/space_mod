@@ -16,11 +16,11 @@ dataset_roots:
 
 # For engine.train
 train:
-  batch_size: 4 #12
+  batch_size: 32 #12
   max_epochs: 1000
   max_steps: 160000
-  print_every: 100
-  create_image_every: 200
+  print_every: 300
+  create_image_every: 300
   save_every: 1000
   num_workers: 0 #4
   clip_norm: 1.0
@@ -45,12 +45,12 @@ eval_cfg:
   train:
     metrics: ['mse']
     num_samples:
-      mse: 200
+      mse: 224
       ap: 500
-    batch_size: 4 #
+    batch_size: 32 #
     num_workers: 0 #4
   test:
-    batch_size: 4 #12
+    batch_size: 32 #12
     num_workers: 0 #4
 
 arch:
@@ -77,7 +77,7 @@ arch:
   fix_alpha_value: 0.1
 
   K: 1
-  bg_sigma: 0.1
+  bg_sigma: 0.05
 
   boundary_loss: true
   bl_off_step: 100000

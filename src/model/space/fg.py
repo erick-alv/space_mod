@@ -16,7 +16,8 @@ class SpaceFg(nn.Module):
         self.z_what_net = ZWhatEnc()
         self.glimpse_dec = GlimpseDec()
         # This is what is really used
-        self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=6)
+        #self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=6)
+        self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=15)
         
         self.fg_sigma = arch.fg_sigma
         # I register many things as buffer but this is not really necessary.
@@ -40,7 +41,7 @@ class SpaceFg(nn.Module):
         # self.register_buffer('prior_shift_std_new', torch.tensor(1.))
         
         # TODO: These are placeholders for loading old checkpoints. No longer used
-        self.boundary_filter = get_boundary_kernel(sigma=20)
+        #self.boundary_filter = get_boundary_kernel(sigma=20)
         self.register_buffer('prior_scale_mean',
                              torch.tensor([arch.z_scale_mean_start_value] * 2).view((arch.z_where_scale_dim), 1, 1))
         self.register_buffer('prior_scale_std',
