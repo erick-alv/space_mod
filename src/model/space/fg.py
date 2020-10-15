@@ -16,8 +16,8 @@ class SpaceFg(nn.Module):
         self.z_what_net = ZWhatEnc()
         self.glimpse_dec = GlimpseDec()
         # This is what is really used
-        #self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=6)
-        self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=25)
+        self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=6)
+        #self.boundary_kernel = get_boundary_kernel_new(kernel_size=32, boundary_width=25)
         
         self.fg_sigma = arch.fg_sigma
         # I register many things as buffer but this is not really necessary.
