@@ -19,8 +19,8 @@ train:
   batch_size: 32 #12
   max_epochs: 1000
   max_steps: 160000
-  print_every: 300
-  create_image_every: 300
+  print_every: 200
+  create_image_every: 200
   save_every: 1000
   num_workers: 0 #4
   clip_norm: 1.0
