@@ -57,6 +57,7 @@ arch:
   G: 8
   img_shape: (64, 64)
   fg_sigma: 0.2
+  z_what_dim: 6
 
   z_pres_start_step: 4000
   z_pres_end_step: 10000

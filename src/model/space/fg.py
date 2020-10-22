@@ -278,7 +278,7 @@ class SpaceFg(nn.Module):
         # (B*G*G, D)
         z_what, z_what_post = self.z_what_net(x_att)
         return z_pres, z_depth, z_scale, z_shift, z_where, z_pres_logits, z_depth_post, z_scale_post, \
-               z_shift_post
+               z_shift_post, z_what, z_what_post
 
 
 class ImgEncoderFg(nn.Module):

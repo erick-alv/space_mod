@@ -120,10 +120,22 @@ class SpaceVis:
     
     @torch.no_grad()
     def show_vis(self, model, dataset, indices, path, device):
-        dataset = Subset(dataset, indices)
-        dataloader = DataLoader(dataset, batch_size=len(indices), shuffle=False)
-        data = next(iter(dataloader))
-        data = data.to(device)
+
+        if dataset is None:
+            data_set = np.load('../data/TABLE/val/all_set_val.npy')
+            data_size = len(data_set)
+            idx_set = np.arange(data_size)
+            np.random.shuffle(idx_set)
+            idx_set = np.split(idx_set, len(idx_set) / len(indices))
+            data = data_set[idx_set[0]]
+            data = torch.from_numpy(data).float().to(device)
+            data /= 255
+            data = data.permute([0, 3, 1, 2])
+        else:
+            dataset = Subset(dataset, indices)
+            dataloader = DataLoader(dataset, batch_size=len(indices), shuffle=False)
+            data = next(iter(dataloader))
+            data = data.to(device)
         loss, log = model(data, 100000000)
         for key, value in log.items():
             if isinstance(value, torch.Tensor):
@@ -158,12 +170,20 @@ class SpaceVis:
         image = image.permute(1, 2, 0).numpy()
         image = (image * 255).astype(np.uint8)
         imageio.imwrite(path, image)
-        '''start = time.time()
-        for _ in range(1000):
+        start = time.time()
+        '''for _ in range(1000):
             with torch.no_grad():
-                z_pres, z_depth, z_scale, z_shift, z_where, z_pres_logits, z_depth_post, z_scale_post, z_shift_post = model.encode(data)
-                fg_box = bbox_in_one(
-                    log.fg, z_pres, z_scale, z_shift
-                )
+                for re in range(2):
+                    z_pres, z_depth, z_scale, z_shift, z_where, z_pres_logits, z_depth_post, \
+                    z_scale_post, z_shift_post, z_what, z_what_post = model.encode(data)
+                    z_p = np.squeeze(z_pres.detach().cpu().numpy())
+                    z_sc = np.squeeze(z_scale.detach().cpu().numpy(), axis=0)
+                    z_sh = np.squeeze(z_shift.detach().cpu().numpy(), axis=0)
+                    indices = z_p > 0.98
+                    coordinates = z_sh[indices]
+                    sizes = z_sc[indices]
+                #fg_box = bbox_in_one(
+                #    log.fg, z_pres, z_scale, z_shift
+                #)
         end = time.time()
         print('passed time: {}'.format(end - start))'''
